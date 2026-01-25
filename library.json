@@ -1,0 +1,19 @@
+{
+  "name": "blockcoding.click-libraries",
+  "version": "1.0.0",
+  "description": "Umbrella library for blockcoding.click libraries",
+  "frameworks": [
+    "arduino"
+  ],
+  "build": {
+    "srcDir": ".",
+    "srcFilter": [
+      //"+<ServoESP32/src/*.cpp>",
+      "-<**/examples/**>"
+    ],
+    "flags": [
+      "-I ServoESP32/src",
+      "-I blockcoding.click-SSL"
+    ]
+  }
+}
