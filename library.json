@@ -13,7 +13,8 @@
     ],
     "flags": [
       "-I ServoESP32/src",
-      "-I blockcoding.click-SSL"
+      "-I blockcoding.click-SSL",
+      "-I blockcoding-click-OTA"
     ]
   }
 }

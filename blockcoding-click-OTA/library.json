@@ -1,8 +1,0 @@
-{
-  "name": "blockcoding-click-OTA",
-  "version": "0.1.0",
-  "description": "blockcoding.click OTA client library",
-  "keywords": ["ota", "esp32", "blockcoding-click"],
-  "frameworks": "arduino",
-  "platforms": "espressif32"
-}
