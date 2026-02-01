@@ -460,14 +460,11 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
   log("OTA: Rebooting now");
 
   Serial.flush();
-  delay(500);
+  delay(250);
 #if defined(ESP32)
   esp_restart();
 #endif
   ESP.restart();
-  while (true) {
-    delay(1000);
-  }
   return true;
 }
 
@@ -495,7 +492,7 @@ bool blockcoding_click_OTA::registerDevice() {
 void blockcoding_click_OTA::update() {
   serialMqttLoop_();
   uint32_t nowMs = millis();
-  if (_checkIntervalMs > 0 && _lastCheckMs > 0 && (nowMs - _lastCheckMs) < _checkIntervalMs) return;
+  if (_checkIntervalMs > 0 && (nowMs - _lastCheckMs) < _checkIntervalMs) return;
   _lastCheckMs = nowMs;
 
   String firmwareUrl;
