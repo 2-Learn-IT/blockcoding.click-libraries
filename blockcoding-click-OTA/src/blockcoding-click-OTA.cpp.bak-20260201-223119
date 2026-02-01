@@ -275,26 +275,31 @@ bool blockcoding_click_OTA::ensureSerialMqttConnected_() {
 }
 
 void blockcoding_click_OTA::serialPublishLine_(const String& line) {
-  serialBufferAppend_(line, true);
-}
-
-void blockcoding_click_OTA::serialBufferAppend_(const String& chunk, bool newline) {
   if (!_serialMqttEnabled) return;
-  _serialLineBuffer += chunk;
-  if (newline) _serialLineBuffer += "\n";
   if (!ensureSerialMqttConnected_()) return;
   if (_serialTopic.length() == 0) {
     _serialTopic = String("serial/") + _deviceId;
   }
+  _serialMqttClient.publish(_serialTopic.c_str(), line.c_str());
+}
+
+void blockcoding_click_OTA::serialBufferAppend_(const String& chunk, bool newline) {
+  if (!_serialMqttEnabled) return;
+  if (!ensureSerialMqttConnected_()) return;
+  if (_serialTopic.length() == 0) {
+    _serialTopic = String("serial/") + _deviceId;
+  }
+  _serialLineBuffer += chunk;
+  if (newline) _serialLineBuffer += "\n";
   int idx = _serialLineBuffer.indexOf('\n');
   while (idx >= 0) {
     String line = _serialLineBuffer.substring(0, idx);
     _serialLineBuffer = _serialLineBuffer.substring(idx + 1);
-    _serialMqttClient.publish(_serialTopic.c_str(), line.c_str());
+    serialPublishLine_(line);
     idx = _serialLineBuffer.indexOf('\n');
   }
   if (_serialLineBuffer.length() > 512) {
-    _serialMqttClient.publish(_serialTopic.c_str(), _serialLineBuffer.c_str());
+    serialPublishLine_(_serialLineBuffer);
     _serialLineBuffer = "";
   }
 }
@@ -499,7 +504,7 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
   log("OTA: Rebooting now");
 
   Serial.flush();
-  // resetOutputPins_(); // disabled for now (multiplexer conflicts) – see docs/OTA.md
+  resetOutputPins_();
   delay(250);
 #if defined(ESP32)
   esp_restart();
