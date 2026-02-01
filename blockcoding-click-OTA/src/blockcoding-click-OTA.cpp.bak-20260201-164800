@@ -424,7 +424,6 @@ bool blockcoding_click_OTA::ackUpdate(long fwTs) {
 }
 
 bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmwareTs) {
-  _flashSuccessLogged = false;
   WiFiClientSecure client;
   client.setCACert(BLOCKCODING_CLICK_CA);
 
@@ -497,10 +496,7 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
   long ackTs = (firmwareTs > 0) ? firmwareTs : nowEpoch();
   ackUpdate(ackTs);
 
-  if (!_flashSuccessLogged) {
-    logWithTimestamp("OTA firmware flash success");
-    _flashSuccessLogged = true;
-  }
+  logWithTimestamp("OTA firmware flash success");
   log("OTA: Rebooting now");
 
   Serial.flush();

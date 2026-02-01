@@ -92,6 +92,7 @@ private:
   String _serialLineBuffer;
   unsigned long _serialLastConnectAttempt = 0;
   bool _serialMqttLogEmitted = false;
+  bool _flashSuccessLogged = false;
 
   // Callbacks
   LogFn _logFn = nullptr;
