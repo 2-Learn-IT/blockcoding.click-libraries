@@ -100,14 +100,11 @@ private:
 
   // Helpers
   void log(const String& msg);
-  void logWithTimestamp(const String& msg);
   void logError(const String& msg);
   void progress(size_t done, size_t total);
 
   long nowEpoch();
   void ensureTimeSync();
-  String formatTimestamp_();
-  void resetOutputPins_();
 
   void appendAuth(String& body);
   bool postJson(const char* url, const String& body, String* response);

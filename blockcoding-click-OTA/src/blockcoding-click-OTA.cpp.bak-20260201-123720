@@ -167,34 +167,6 @@ void blockcoding_click_OTA::log(const String& msg) {
   serialPublishLine_(msg);
 }
 
-String blockcoding_click_OTA::formatTimestamp_() {
-  time_t now = time(nullptr);
-  if (now < 1000000000) return String("");
-  struct tm timeinfo;
-  gmtime_r(&now, &timeinfo);
-  char buf[32];
-  strftime(buf, sizeof(buf), "[%Y-%m-%d %H:%M:%S] ", &timeinfo);
-  return String(buf);
-}
-
-void blockcoding_click_OTA::resetOutputPins_() {
-#if defined(ESP32)
-  const uint8_t pins[] = {2, 4, 5, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33};
-  for (size_t i = 0; i < sizeof(pins) / sizeof(pins[0]); i++) {
-    pinMode(pins[i], OUTPUT);
-    digitalWrite(pins[i], LOW);
-  }
-#endif
-}
-
-void blockcoding_click_OTA::logWithTimestamp(const String& msg) {
-  String prefix = formatTimestamp_();
-  String full = prefix.length() ? (prefix + msg) : msg;
-  if (_printLogs) Serial.println(full);
-  if (_logFn) _logFn(full);
-  serialPublishLine_(full);
-}
-
 void blockcoding_click_OTA::logError(const String& msg) {
   if (_printLogs) Serial.println(msg);
   if (_logFn) _logFn(msg);
@@ -440,7 +412,6 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
     return false;
   }
 
-  logWithTimestamp("Flashing via OTA...");
   int total = https.getSize();
   if (!Update.begin(total > 0 ? total : UPDATE_SIZE_UNKNOWN)) {
     https.end();
@@ -451,9 +422,6 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
   WiFiClient* stream = &https.getStream();
   size_t written = 0;
   uint8_t buf[1024];
-  const char* spinnerFrames[] = {"|", "/", "-", "\\"};
-  int spinnerIndex = 0;
-  unsigned long lastSpinnerMs = 0;
 
   while (https.connected()) {
     size_t avail = stream->available();
@@ -474,14 +442,6 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
       delay(1);
     }
 
-    unsigned long nowMs = millis();
-    if (nowMs - lastSpinnerMs >= 1000) {
-      lastSpinnerMs = nowMs;
-      String frame = spinnerFrames[spinnerIndex];
-      spinnerIndex = (spinnerIndex + 1) % 4;
-      logWithTimestamp(String("Flashing via OTA... ") + frame);
-    }
-
     if (total > 0 && written >= (size_t)total) break;
   }
 
@@ -496,12 +456,11 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
   long ackTs = (firmwareTs > 0) ? firmwareTs : nowEpoch();
   ackUpdate(ackTs);
 
-  logWithTimestamp("OTA firmware flash success");
+  log("OTA firmware flash success");
   log("OTA: Rebooting now");
 
   Serial.flush();
-  resetOutputPins_();
-  delay(250);
+  delay(500);
 #if defined(ESP32)
   esp_restart();
 #endif
@@ -545,9 +504,9 @@ void blockcoding_click_OTA::update() {
   log("OTA: Checking for firmware update...");
   if (checkUpdate(firmwareUrl, firmwareTs)) {
     if (firmwareTs > 0) {
-      logWithTimestamp("OTA: Update available (ts=" + String(firmwareTs) + ")");
+      log("OTA: Update available (ts=" + String(firmwareTs) + ")");
     } else {
-      logWithTimestamp("OTA: Update available");
+      log("OTA: Update available");
     }
     if (_updateAvailableFn) _updateAvailableFn();
     startUpdate(firmwareUrl, firmwareTs);

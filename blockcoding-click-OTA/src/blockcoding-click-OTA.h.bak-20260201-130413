@@ -107,7 +107,6 @@ private:
   long nowEpoch();
   void ensureTimeSync();
   String formatTimestamp_();
-  void resetOutputPins_();
 
   void appendAuth(String& body);
   bool postJson(const char* url, const String& body, String* response);

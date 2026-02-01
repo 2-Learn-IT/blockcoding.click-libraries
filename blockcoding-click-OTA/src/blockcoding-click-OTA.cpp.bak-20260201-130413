@@ -177,16 +177,6 @@ String blockcoding_click_OTA::formatTimestamp_() {
   return String(buf);
 }
 
-void blockcoding_click_OTA::resetOutputPins_() {
-#if defined(ESP32)
-  const uint8_t pins[] = {2, 4, 5, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33};
-  for (size_t i = 0; i < sizeof(pins) / sizeof(pins[0]); i++) {
-    pinMode(pins[i], OUTPUT);
-    digitalWrite(pins[i], LOW);
-  }
-#endif
-}
-
 void blockcoding_click_OTA::logWithTimestamp(const String& msg) {
   String prefix = formatTimestamp_();
   String full = prefix.length() ? (prefix + msg) : msg;
@@ -500,8 +490,7 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
   log("OTA: Rebooting now");
 
   Serial.flush();
-  resetOutputPins_();
-  delay(250);
+  delay(500);
 #if defined(ESP32)
   esp_restart();
 #endif
