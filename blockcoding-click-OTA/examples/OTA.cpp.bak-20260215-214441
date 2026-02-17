@@ -8,7 +8,6 @@ int i = 0;
 
 void setup() {
   Serial.begin(115200);
-  blockcoding_click_ota.resetGPIO("ESP32");
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);

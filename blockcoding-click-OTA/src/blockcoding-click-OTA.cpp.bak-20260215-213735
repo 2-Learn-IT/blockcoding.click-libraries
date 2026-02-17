@@ -177,23 +177,13 @@ String blockcoding_click_OTA::formatTimestamp_() {
   return String(buf);
 }
 
-void blockcoding_click_OTA::resetGPIO(const char* uploadBoard) {
+void blockcoding_click_OTA::resetOutputPins_() {
 #if defined(ESP32)
-  String board = uploadBoard ? String(uploadBoard) : String("");
-  board.trim();
-  board.toLowerCase();
-
-  if (!(board == "esp32" || board == "esp32dev" || board == "esp32 dev module")) {
-    return;
-  }
-
-  const uint8_t pins[] = {12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33};
+  const uint8_t pins[] = {2, 4, 5, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33};
   for (size_t i = 0; i < sizeof(pins) / sizeof(pins[0]); i++) {
     pinMode(pins[i], OUTPUT);
     digitalWrite(pins[i], LOW);
   }
-#else
-  (void)uploadBoard;
 #endif
 }
 
@@ -509,7 +499,7 @@ bool blockcoding_click_OTA::startUpdate(const String& firmwareUrl, long firmware
   log("OTA: Rebooting now");
 
   Serial.flush();
-  // GPIO reset is handled at setup via resetGPIO("ESP32").
+  // resetOutputPins_(); // disabled for now (multiplexer conflicts) – see docs/OTA.md
   delay(250);
 #if defined(ESP32)
   esp_restart();
